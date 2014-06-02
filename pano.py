@@ -1,6 +1,7 @@
 # Johnny Tran - ECE 118
 import time
 import smbus
+import serial
 from Adafruit_CharLCDPlate import Adafruit_CharLCDPlate
 
 # Params
@@ -74,7 +75,7 @@ def submit(rotation_var, op_code):
 	else:
 		instruction = op_code<<10
 	print "send instr ", bin(instruction)
-	#send(instruction)
+	uno_serial.write(str(instruction))
 	
 # displays pano text to user, waits on response from Arduino
 def pano_display():
@@ -98,6 +99,9 @@ def pano_display():
 				wait_for_user = 1
 
 ##############################################################
+
+uno_serial = serial.Serial('/dev/ttyAMA0', 9600, timeout=1)
+uno_serial.open()
 
 lcd = Adafruit_CharLCDPlate()
 lcd.clear()
