@@ -8,9 +8,9 @@ from Adafruit_CharLCDPlate import Adafruit_CharLCDPlate
 rotation = 180
 str1 = "Pano Angle:\n"
 OP_SUBMIT = 0x03
-OP_RIGHT = 0x02
-OP_LEFT = 0x01
-OP_JNT = 0x00
+OP_RIGHT = 'R'
+OP_LEFT = 'L'
+OP_JNT = '0'
 
 # sends data on to the I2C bus
 def send(val):
@@ -69,13 +69,18 @@ def create_packet(param):
 def submit(rotation_var, op_code):
 	instruction = 0;
 	if op_code == OP_SUBMIT:
-		packet = create_packet(rotation_var)
-		instruction = op_code<<10
-		instruction = instruction|packet
+		#packet = create_packet(rotation_var)
+		#instruction = op_code<<10
+		#instruction = instruction|packet
+
+		instruction = str(calc_interval(rotation_var))
+		
 	else:
-		instruction = op_code<<10
-	print "send instr ", bin(instruction)
-	uno_serial.write(str(instruction))
+		instruction = op_code
+	#print "send instr ", bin(instruction)
+	#print str(instruction)i
+	print str(instruction)
+	uno_serial.write(instruction)
 	
 # displays pano text to user, waits on response from Arduino
 def pano_display():
