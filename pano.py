@@ -3,6 +3,7 @@ import time
 import smbus
 from Adafruit_CharLCDPlate import Adafruit_CharLCDPlate
 
+# Params
 rotation = 180
 str1 = "Pano Angle:\n"
 OP_SUBMIT = 0x03
@@ -10,10 +11,12 @@ OP_RIGHT = 0x02
 OP_LEFT = 0x01
 OP_JNT = 0x00
 
+# sends data on to the I2C bus
 def send(val):
 	bus.write_byte(uno_addr, val)
 	return -1
 
+# receives data off to the I2C bus
 def receive():
 	num = bus.read_byte(uno_addr)
 	return num
@@ -34,6 +37,7 @@ def calc_interval(user_deg):
 def err():
 	lcd.backlight(lcd.RED)
 
+# updates display with current rotation selection
 def update_rotation_display(curr_rotation, diff):
 	# keeps value of rotation in range
 	new_rotation = curr_rotation + diff
@@ -50,6 +54,7 @@ def update_rotation_display(curr_rotation, diff):
 	lcd.message(display_str)
 	return new_rotation	
 
+# creates a packet for part of the instruction
 def create_packet(param):
 	interval = calc_interval(param)
 	rotate_var = param/10			#rotation is between 0-36, 37 values
@@ -59,6 +64,7 @@ def create_packet(param):
 	print bin(packet)
 	return packet;
 
+# creates an instruction to send to Arduino
 def submit(rotation_var, op_code):
 	instruction = 0;
 	if op_code == OP_SUBMIT:
@@ -67,13 +73,18 @@ def submit(rotation_var, op_code):
 		instruction = instruction|packet
 	else:
 		instruction = op_code<<10
-	print "submit packet ", bin(instruction)
-
+	print "send instr ", bin(instruction)
+	#send(instruction)
+	
+# displays pano text to user, waits on response from Arduino
 def pano_display():
 	lcd.clear()
 	lcd.backlight(lcd.VIOLET)
 	lcd.message("Executing Pano!\n Please wait...")
 	time.sleep(5)
+	uno_output = 0
+	#while uno_output != 1:
+	#	uno_output = receive()
 	lcd.clear()
 	lcd.backlight(lcd.ON)
 	lcd.message("Done! Press any key\n to continue.")
@@ -85,7 +96,9 @@ def pano_display():
 				lcd.clear()	
 				lcd.message(welcome_str)
 				wait_for_user = 1
-			
+
+##############################################################
+
 lcd = Adafruit_CharLCDPlate()
 lcd.clear()
 lcd.backlight(lcd.ON)
