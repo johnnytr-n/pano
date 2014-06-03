@@ -16,14 +16,14 @@ Adafruit_MotorShield uno_shield = Adafruit_MotorShield();
 Adafruit_StepperMotor *pano = uno_shield.getStepper(200, 2);
 
 //SoftwareSerial rpi_serial(2,3);
-byte number = 0;
+byte number = 0x00;
 int rotate = 0;
 //int data[2]; // d[0] is interval, d[1] is rotation
 
 void setup(){
   //initialize shield. default param  1.6KHz PWM
   Serial.begin(9600); //9600
- /*
+  
   Serial.println("waiting to establish serial connection");
   while(!Serial){
   }
@@ -32,7 +32,6 @@ void setup(){
   // Initialize MotorShield and StepperMotor objects
   uno_shield.begin();      // default freq 1.6KHz
   pano->setSpeed(6);       // 6 RPM, 1 rev per 10 seconds
-  */
   /*
   Wire.begin(UNO_ADDR);  // initialize device as slave on addr 0x60
   Wire.onReceive(receive);
@@ -48,7 +47,26 @@ void loop(){
   if(Serial.available()){
     number = Serial.read(); 
     Serial.print("character recieved: ");
-    Serial.println(number, DEC);
+    Serial.println(number, HEX);   
+    if((char)number == 0x4C){                 // CLOCK RIGHT
+      Serial.println("rotate right");
+      pano->step(10, FORWARD, DOUBLE);
+    }
+    else if((char)number == 0x52){            // ANTICLOCK LEFT
+      Serial.println("rotate left");
+      pano->step(10, BACKWARD, DOUBLE);
+    }
+    else{
+      int interval = number - 48; // ASCII values
+      Serial.print("submitting intervals: ");
+      Serial.println(interval);
+      for(int i = 0; i < interval; i++){
+        pano->step(20, FORWARD, DOUBLE);
+        delay(3000);    // delay 3 seconds
+      }
+      
+    }
+    number = -1;
   }
 }
   /*
