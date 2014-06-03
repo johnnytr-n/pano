@@ -16,7 +16,7 @@ Adafruit_MotorShield uno_shield = Adafruit_MotorShield();
 Adafruit_StepperMotor *pano = uno_shield.getStepper(200, 2);
 
 //SoftwareSerial rpi_serial(2,3);
-byte number = 0x00;
+byte command = 0x00;
 int rotate = 0;
 //int data[2]; // d[0] is interval, d[1] is rotation
 
@@ -32,84 +32,36 @@ void setup(){
   // Initialize MotorShield and StepperMotor objects
   uno_shield.begin();      // default freq 1.6KHz
   pano->setSpeed(6);       // 6 RPM, 1 rev per 10 seconds
-  /*
-  Wire.begin(UNO_ADDR);  // initialize device as slave on addr 0x60
-  Wire.onReceive(receive);
-  Wire.onRequest(send);
-  */
-  /*
-  rpi_serial.begin(9600);
-  Serial.println("setup complete");
-  */
 }
 
 void loop(){
   if(Serial.available()){
-    number = Serial.read(); 
-    Serial.print("character recieved: ");
-    Serial.println(number, HEX);   
-    if((char)number == 0x4C){                 // CLOCK RIGHT
-      Serial.println("rotate right");
+    command = Serial.read(); 
+    //Serial.print("character recieved: ");
+    //Serial.println(command, HEX);   
+    if((char)command == 0x4C){                 // CLOCK RIGHT
+      Serial.println("command:\trotate right");
       pano->step(10, FORWARD, DOUBLE);
     }
-    else if((char)number == 0x52){            // ANTICLOCK LEFT
-      Serial.println("rotate left");
+    else if((char)command == 0x52){            // ANTICLOCK LEFT
+      Serial.println("command:\trotate left");
       pano->step(10, BACKWARD, DOUBLE);
     }
     else{
-      int interval = number - 48; // ASCII values
-      Serial.print("submitting intervals: ");
-      Serial.println(interval);
+      int interval = (int) command - 48; // ASCII values
+      Serial.print("command:\t");
+      Serial.print(interval);
+      Serial.println(" intervals");
       for(int i = 0; i < interval; i++){
+        Serial.print(i);
         pano->step(20, FORWARD, DOUBLE);
-        delay(3000);    // delay 3 seconds
+        delay(1000);    // delay 3 seconds
+        Serial.print("X");
+        delay(2000);
       }
-      
+      Serial.println("Z");                // signal end of serial stream
+      Serial.println("Done with panorama");
     }
-    number = -1;
+    command = -1;
   }
 }
-  /*
-  if(rpi_serial.available()){
-      Serial.write(rpi_serial.read());
-   }
-   if(Serial.available()){
-      rpi_serial.write(Serial.read()); 
-   }
-     
-   */  
-  /*
-  rotate += 20;
-  rotate = rotate%200;
-  Serial.print("rotating: ");
-  Serial.println(rotate);
-  pano->step(rotate, FORWARD, DOUBLE);
-  pano->step(20, BACKWARD, SINGLE);
-  */
-
-/*
-void readPacket(int packet, int *data){
-  int mask = 0x3F;
-  data[0] = packet>>6;  //interval
-  data[1] = packet & mask;  //rotation
-}
-*/
-/*
-void receive(int var){
-  while(Wire.available()){
-    number = Wire.read();
-    //int rotate = number;
-    Serial.print("data received: ");
-    Serial.println(number);    
-    //pano->step(rotate, FORWARD, DOUBLE);
-  }
-}
-
-void send(){
- Wire.write(number); 
-}
-*/
-
-
-
-
