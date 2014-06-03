@@ -8,17 +8,13 @@
 #include <Adafruit_MotorShield.h>
 #include "utility/Adafruit_PWMServoDriver.h"
 
-#define UNO_ADDR 0x04
 // Creates motor object wi th default I2C addr, 0x60?
 Adafruit_MotorShield uno_shield = Adafruit_MotorShield(); 
 
 // Initialize Stepper obj with 200 step resolution (1.8 deg)
 Adafruit_StepperMotor *pano = uno_shield.getStepper(200, 2);
 
-//SoftwareSerial rpi_serial(2,3);
 byte command = 0x00;
-int rotate = 0;
-//int data[2]; // d[0] is interval, d[1] is rotation
 
 void setup(){
   //initialize shield. default param  1.6KHz PWM
@@ -36,9 +32,7 @@ void setup(){
 
 void loop(){
   if(Serial.available()){
-    command = Serial.read(); 
-    //Serial.print("character recieved: ");
-    //Serial.println(command, HEX);   
+    command = Serial.read();  
     if((char)command == 0x4C){                 // CLOCK RIGHT
       Serial.println("command:\trotate right");
       pano->step(10, FORWARD, DOUBLE);
