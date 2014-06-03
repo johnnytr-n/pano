@@ -66,10 +66,12 @@ def update_display(message):
 def submit(rotation_var, op_code):
 	instruction = 0;
 	if op_code == OP_SUBMIT:
+		print "Pan " + str(rotation_var) + " degs"
+		print "\t" + str(calc_interval(rotation_var)) + " intervals"
+
 		instruction = str(calc_interval(rotation_var))	
 	else:
 		instruction = op_code
-	print "Pan " + rotation_var " degrees, in " + str(instruction) + "intervals"
 	uno_serial.write(instruction)
 	
 # use GPIO to release DSLR shutter
